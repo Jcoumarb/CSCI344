@@ -1,0 +1,25 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+main {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 20px;
+	width: 70%;
+
+}
+
+.card {
+	box-sizing: border-box;
+	border: 2px solid grey;
+	padding: 20px;
+	display: grid;
+	grid-template-columns: 60% auto;
+}
+
+.card img {
+	grid-column: 2;
+}
+
+
