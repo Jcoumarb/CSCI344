@@ -31,7 +31,7 @@ function showNav() {
 
 //await / async syntax:
 async function getPosts() {
-    const response = await fetch("https://photo-app-secured.herokuapp.com/api/posts/?limit=3", {
+    const response = await fetch("https://photo-app-secured.herokuapp.com/api/posts/?limit=10", {
         method: "GET",
         headers: {
             'Content-Type': 'application/json',
@@ -49,7 +49,7 @@ function renderBookmarkButton(postJSON) {
     if (postJSON.current_user_bookmark_id) {
 
         template = `
-            <button onclick="">
+            <button onclick="window.removeBookmark(${postJSON.id})">
                 <i class="far fa-bookmark"></i>
             </button>
         `;
@@ -64,14 +64,30 @@ function renderBookmarkButton(postJSON) {
     return template;
 }
 
+function renderComments(postJSON) {
+    let template = "";
+    
+    postJSON.comments.forEach(comment => {
+        template += `
+            <p class="text-sm mb-3">
+                <strong>${comment.user.username}</strong>
+                ${comment.text}
+            </p>
+        `;
+    });
+
+    return template;
+}
+
+
 function renderPost(postJSON) {
     const template = `
         <section class="bg-white border mb-10">
             <div class="p-4 flex justify-between">
-                <h3 class="text-lg font-Comfortaa font-bold">lindseychandler</h3>
+                <h3 class="text-lg font-Comfortaa font-bold">${postJSON.user.username}</h3>
                 <button class="icon-button"><i class="fas fa-ellipsis-h"></i></button>
             </div>
-            <img src="https://picsum.photos/300/200?q=2" alt="placeholder image" width="300" height="300"
+            <img src="${postJSON.image_url}" alt="placeholder image" width="300" height="300"
                 class="w-full bg-cover">
             <div class="p-4">
                 <div class="flex justify-between text-2xl mb-3">
@@ -84,24 +100,16 @@ function renderPost(postJSON) {
                         ${renderBookmarkButton(postJSON)}
                     </div>
                 </div>
-                <p class="font-bold mb-3">30 likes</p>
+                <p class="font-bold mb-3">${postJSON.likes.length} likes</p>
                 <div class="text-sm mb-3">
                     <p>
-                        <strong>gibsonjack</strong>
-                        Here is a caption about the photo.
-                        Text text text text text text text text text
-                        text text text text text text text text... <button class="button">more</button>
+                        <strong>${postJSON.user.username}</strong>
+                        ${postJSON.caption}
+                        <button class="button">more</button>
                     </p>
                 </div>
-                <p class="text-sm mb-3">
-                    <strong>lizzie</strong>
-                    Here is a comment text text text text text text text text.
-                </p>
-                <p class="text-sm mb-3">
-                    <strong>vanek97</strong>
-                    Here is another comment text text text.
-                </p>
-                <p class="uppercase text-gray-500 text-xs">1 day ago</p>
+                ${renderComments(postJSON)}
+                <p class="uppercase text-gray-500 text-xs">${postJSON.display_time}</p>
             </div>
             <div class="flex justify-between items-center p-3">
                 <div class="flex items-center gap-3 min-w-[80%]">
@@ -123,13 +131,30 @@ function renderPosts(postList) {
 }
 
 //await / async syntax:
-async function createBookmark(postId) {
+window.createBookmark = async function (postId) {
     const postData = {
         post_id: postId,
     };
 
     const response = await fetch("https://photo-app-secured.herokuapp.com/api/bookmarks/", {
         method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(postData)
+    });
+    const data = await response.json();
+    console.log(data);
+}
+
+window.removeBookmark = async function (postId) {
+    const postData = {
+        post_id: postId,
+    };
+
+    const response = await fetch(`https://photo-app-secured.herokuapp.com/api/bookmarks/${postId}`, {
+        method: "DELETE",
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
