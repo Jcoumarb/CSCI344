@@ -49,8 +49,8 @@ function renderBookmarkButton(postJSON) {
     if (postJSON.current_user_bookmark_id) {
 
         template = `
-            <button onclick="window.removeBookmark(${postJSON.id})">
-                <i class="far fa-bookmark"></i>
+            <button onclick="window.removeBookmark(${postJSON.current_user_bookmark_id})">
+                <i class="fas fa-bookmark"></i>
             </button>
         `;
     } else {
