@@ -13,17 +13,39 @@ class BookmarksListEndpoint(Resource):
         self.current_user = current_user
 
     def get(self):
-        # TODO: Add GET Logic...
+        
+        bookmarks = Bookmark.query.filter_by(user_id=self.current_user.id)
+        data = [item.to_dict() for item in bookmarks.all()]
+
         return Response(
-            json.dumps([]),
+            json.dumps(data),
             mimetype="application/json",
             status=200,
         )
 
     def post(self):
-        # TODO: Add POST Logic...
+        
+        data = request.get_json()
+        post_id = request_data.get("post_id")
+
+        post = Post.query.get(post_id)
+        if post is None:
+            return Response(
+                json.dumps({"message": f"post id={post_id} not found"}),
+                mimetype="application/json",
+                status=404,
+            )
+
+        new_bookmark = Bookmark(
+            post_id=post_id,
+            user_id=self.current_user.id,
+        )
+
+        db.session.add(new_bookmark)
+        db.session.commit()
+
         return Response(
-            json.dumps({}),
+            json.dumps(new_bookmark.to_dict()),
             mimetype="application/json",
             status=201,
         )
